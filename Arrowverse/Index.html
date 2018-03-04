@@ -46,7 +46,7 @@
 <body ng-app="arrowverseApp">
     <div ng-controller="arrowverseController">
         <input type="button" ng-click="fetchEpisodesList()" value="Fetch Episodes" />
-
+        <input type="number" ng-model="limit" ng-init="limit=20"/>
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -58,7 +58,7 @@
                     <th>Date</th>
                 </tr>
             <tbody>
-                <tr ng-repeat="episode in episodes | orderBy:'order'" ng-class="{'watched' : isWatched(episode)}" class="series {{episode.series | flatten}}">
+                <tr ng-repeat="episode in episodes | orderBy:'order' | limitTo:-limit" ng-class="{'watched' : isWatched(episode)}" class="series {{episode.series | flatten}}">
                     <td>
                         <input type="checkbox" ng-checked="isWatched(episode)" ng-click="setWatched(episode)" />
                     </td>
@@ -74,7 +74,5 @@
             <p>{{episode}}</p>
         </div>
     </div>
-
-
 </body>
 </html>
