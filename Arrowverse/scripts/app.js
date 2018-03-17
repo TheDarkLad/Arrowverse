@@ -3,6 +3,7 @@ var app = angular.module('arrowverseApp', []);
 app.controller('arrowverseController', ['$scope', '$http', '$filter', function ($scope, $http, $filter) {
     $scope.episodes = [];
     $scope.watched = [];
+    $scope.today = new Date();
 
     $scope.Init = function () {        
         var episodesSource = "episodes.json?v=" + Date.now().valueOf();
@@ -29,6 +30,13 @@ app.controller('arrowverseController', ['$scope', '$http', '$filter', function (
         if ($scope.watched && episode) {
             var _identifier = $filter('identifier')(episode);
             return $scope.watched.indexOf(_identifier) > -1;
+        }
+        return false;
+    }
+
+    $scope.isFuture = function (episode) {
+        if (episode) {
+            return new Date(episode.date) > $scope.today;
         }
         return false;
     }
@@ -92,7 +100,8 @@ app.controller('arrowverseController', ['$scope', '$http', '$filter', function (
                             series: _series,
                             episode: $currentTableRow.children[2].innerText,
                             title: $currentTableRow.children[3].innerText,
-                            date: $currentTableRow.children[4].innerText,
+                            dateString: $currentTableRow.children[4].innerText,
+                            date: new Date($currentTableRow.children[4].innerText),
                         });
                     }
                 }

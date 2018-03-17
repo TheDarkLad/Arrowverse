@@ -21,7 +21,8 @@
 
     <style>
         .watched {
-            opacity: 0.2;
+            opacity: 0.15;
+            text-decoration: line-through;
         }
 
         .series {
@@ -39,6 +40,10 @@
 
         .dcs_legends_of_tomorrow {
             background: #003E3E;
+        }
+
+        .future {
+            opacity: 0.7;
         }
     </style>
 </head>
@@ -58,7 +63,7 @@
                     <th>Date</th>
                 </tr>
             <tbody>
-                <tr ng-repeat="episode in episodes | orderBy:'order' | limitTo:-limit" ng-class="{'watched' : isWatched(episode)}" class="series {{episode.series | flatten}}">
+                <tr ng-repeat="episode in episodes | orderBy:'order' | limitTo:-limit" ng-class="{'watched' : isWatched(episode), 'future' : isFuture(episode)}" class="series {{episode.series | flatten}}">
                     <td>
                         <input type="checkbox" ng-checked="isWatched(episode)" ng-click="setWatched(episode)" />
                     </td>
@@ -66,7 +71,7 @@
                     <td>{{episode.series}}</td>
                     <td>{{episode.episode}}</td>
                     <td>{{episode.title}}</td>
-                    <td>{{episode.date}}</td>
+                    <td>{{episode.dateString}}</td>
                 </tr>
             </tbody>
         </table>
