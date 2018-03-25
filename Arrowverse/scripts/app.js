@@ -4,6 +4,15 @@ app.controller('arrowverseController', ['$scope', '$http', '$filter', function (
     $scope.episodes = [];
     $scope.watched = [];
     $scope.today = new Date();
+    $scope.limit = localStorage.getItem('limit');
+    if (!$scope.limit)
+        $scope.limit = 20;
+
+    $scope.$watch("limit", function (newValue, oldValue) {
+        if (newValue != oldValue) {
+            localStorage.setItem('limit', newValue);
+        }
+    });
 
     $scope.Init = function () {        
         var episodesSource = "episodes.json?v=" + Date.now().valueOf();
