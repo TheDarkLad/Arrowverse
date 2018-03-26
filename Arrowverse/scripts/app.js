@@ -3,10 +3,13 @@ var app = angular.module('arrowverseApp', []);
 app.controller('arrowverseController', ['$scope', '$http', '$filter', function ($scope, $http, $filter) {
     $scope.episodes = [];
     $scope.watched = [];
-    $scope.today = new Date();
-    $scope.limit = localStorage.getItem('limit');
-    if (!$scope.limit)
+    var now = new Date()
+    $scope.today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    var limit = localStorage.getItem('limit')
+    if (!limit)
         $scope.limit = 20;
+    else
+        $scope.limit = parseInt(limit);
 
     $scope.$watch("limit", function (newValue, oldValue) {
         if (newValue != oldValue) {
@@ -45,7 +48,7 @@ app.controller('arrowverseController', ['$scope', '$http', '$filter', function (
 
     $scope.isFuture = function (episode) {
         if (episode) {
-            return new Date(episode.date) > $scope.today;
+            return new Date(episode.date) >= $scope.today;
         }
         return false;
     }
