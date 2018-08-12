@@ -1,44 +1,28 @@
 var app = angular.module('arrowverseApp', []);
 
 app.controller('arrowverseController', ['$scope', '$http', '$filter', function ($scope, $http, $filter) {
+    // declare variables 
     $scope.episodes = [];
     $scope.watched = [];
+    // Set date variables
     var now = new Date()
     $scope.today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    var limit = localStorage.getItem('limit')
-    if (!limit)
-        $scope.limit = 20;
-    else
-        $scope.limit = parseInt(limit);
-
-    $scope.$watch("limit", function (newValue, oldValue) {
-        if (newValue !== oldValue) {
-            localStorage.setItem('limit', newValue);
-        }
-    });
-
-    $scope.Init = function () {     
-        var episodesSource = "arrowverse.json?v=" + Date.now().valueOf();
-        $http.get(episodesSource).then(function (result) {
-            if (result && result.data) {
-                var data = result.data;
-
-                $scope.episodes = data.episodes;
-                $scope.watched = data.watched;
-                setTimeout(function () {
-                    var _elemH = $('table tr.watched').last().offset().top;
-                    window.scrollTo(0, _elemH);
-                }, 100);
-            }
-        }, function (err) {
-            console.error(err);
-        });
-    }
-
+    $scope.historyDate = new Date(now.getFullYear(), now.getMonth(), now.getDate()).addDays(7);
+    // Accepted shows
+    $scope.acceptedShow = ["arrow", "the_flash", "dcs_legends_of_tomorrow"];
+    
+    // episodes states
     $scope.isWatched = function (episode) {
         if ($scope.watched && episode) {
             var _identifier = $filter('identifier')(episode);
             return $scope.watched.indexOf(_identifier) > -1;
+        }
+        return false;
+    }
+
+    $scope.isHistory = function (episode) {
+        if ($scope.isWatched(episode)) {
+            return new Date(episode.date) <= $scope.historyDate;
         }
         return false;
     }
@@ -50,6 +34,7 @@ app.controller('arrowverseController', ['$scope', '$http', '$filter', function (
         return false;
     }
 
+    // Events
     $scope.setAllWatched = function () {
         angular.forEach($scope.episodes, function (episode) {
             var _identifier = $filter('identifier')(episode);
@@ -75,6 +60,7 @@ app.controller('arrowverseController', ['$scope', '$http', '$filter', function (
         } 
     }
 
+    // Get episodes
     $scope.fetchEpisodesList = function () {
         console.log('fetching episodes...');
         $.getJSON('http://anyorigin.com/go?url=http%3A//flash-arrow-order.herokuapp.com/hide/supergirl+vixen+constantine/&callback=?', function (data) {
@@ -88,7 +74,7 @@ app.controller('arrowverseController', ['$scope', '$http', '$filter', function (
 
                     var _series = $currentTableRow.children[1].innerText;
 
-                    if ($scope.acceptedShow($filter('flatten')(_series))) {
+                    if ($scope.acceptedShow.indexOf($filter('flatten')(_series)) > -1) {
                         _data.push({
                             order: parseInt($currentTableRow.children[0].innerText),
                             series: _series,
@@ -111,8 +97,9 @@ app.controller('arrowverseController', ['$scope', '$http', '$filter', function (
             }, 200);
         });
     }
-    
-    $scope.SaveAll = function (episodesJson) {
+
+    // Save data
+    $scope.SaveAll = function () {
         var data = {
             watched: $scope.watched,
             episodes: $scope.episodes
@@ -131,13 +118,24 @@ app.controller('arrowverseController', ['$scope', '$http', '$filter', function (
         });
     }
 
-    $scope.acceptedShow = function (series) {
-        return (series === "arrow" || series === "the_flash" || series === "dcs_legends_of_tomorrow")
-    }
-
-    $scope.Init();
+    // Init the application
+    $scope.Init = function () {
+        var episodesSource = "arrowverse.json?v=" + Date.now().valueOf();
+        $http.get(episodesSource).then(function (result) {
+            if (result && result.data) {
+                var data = result.data;
+                $scope.episodes = data.episodes;
+                $scope.watched = data.watched;
+                setTimeout(function () {
+                    var _elemH = $('table tr.watched').last().offset().top;
+                    window.scrollTo(0, _elemH);
+                }, 100);
+            }
+        }, function (err) {
+            console.error(err);
+        });
+    }();
 }]);
-
 
 app.filter('identifier', function ($filter) {
     return function (episode) {
@@ -156,3 +154,9 @@ app.filter('flatten', function () {
         return string;
     }
 });
+
+Date.prototype.addDays = function (days) {
+    var date = new Date(this.valueOf());
+    date.setDate(date.getDate() + days);
+    return date;
+}
