@@ -12,27 +12,24 @@ app.controller('arrowverseController', ['$scope', '$http', '$filter', function (
         $scope.limit = parseInt(limit);
 
     $scope.$watch("limit", function (newValue, oldValue) {
-        if (newValue != oldValue) {
+        if (newValue !== oldValue) {
             localStorage.setItem('limit', newValue);
         }
     });
 
-    $scope.Init = function () {        
-        var episodesSource = "episodes.json?v=" + Date.now().valueOf();
+    $scope.Init = function () {     
+        var episodesSource = "arrowverse.json?v=" + Date.now().valueOf();
         $http.get(episodesSource).then(function (result) {
-            $scope.episodes = result.data;
-            setTimeout(function () {
-                var _elemH = $('table tr.watched').last().offset().top;
-                window.scrollTo(0, _elemH);
-            }, 100);
+            if (result && result.data) {
+                var data = result.data;
 
-        }, function (err) {
-            console.error(err);
-        });
-
-        var watchedSource = "watched.json?v=" + Date.now().valueOf();
-        $http.get(watchedSource).then(function (result) {
-            $scope.watched = result.data
+                $scope.episodes = data.episodes;
+                $scope.watched = data.watched;
+                setTimeout(function () {
+                    var _elemH = $('table tr.watched').last().offset().top;
+                    window.scrollTo(0, _elemH);
+                }, 100);
+            }
         }, function (err) {
             console.error(err);
         });
@@ -74,24 +71,9 @@ app.controller('arrowverseController', ['$scope', '$http', '$filter', function (
             else {
                 $scope.watched.push(_identifier);
             }
-            $scope.saveWatched(angular.toJson($scope.watched));
-        }
+            $scope.SaveAll();
+        } 
     }
-
-    $scope.saveWatched = function (watchedJson) {
-        var fd = new FormData();
-        fd.append('json', watchedJson);
-
-        $http.post("SaveWatchedList.php", fd, {
-            transformRequest: angular.identity,
-            headers: { 'Content-Type': undefined, 'Process-Data': false }
-        }).then(function () {
-            console.log("OK");
-        }, function (err) {
-            console.log(err);
-        });
-    }
-
 
     $scope.fetchEpisodesList = function () {
         console.log('fetching episodes...');
@@ -118,8 +100,9 @@ app.controller('arrowverseController', ['$scope', '$http', '$filter', function (
                     }
                 }
             }
-            $scope.saveEpisodes(angular.toJson(_data));
+
             $scope.episodes = _data;
+            $scope.SaveAll();
             console.log('fetched episodes completed!');
 
             setTimeout(function () {
@@ -128,12 +111,17 @@ app.controller('arrowverseController', ['$scope', '$http', '$filter', function (
             }, 200);
         });
     }
+    
+    $scope.SaveAll = function (episodesJson) {
+        var data = {
+            watched: $scope.watched,
+            episodes: $scope.episodes
+        };
 
-    $scope.saveEpisodes = function (episodesJson) {
         var fd = new FormData();
-        fd.append('json', episodesJson);
+        fd.append('json', angular.toJson(data));
 
-        $http.post("SaveEpisodeList.php", fd, {
+        $http.post("SaveArrowverse.php", fd, {
             transformRequest: angular.identity,
             headers: { 'Content-Type': undefined, 'Process-Data': false }
         }).then(function () {
