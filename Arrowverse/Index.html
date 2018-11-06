@@ -49,6 +49,13 @@
         .future {
             opacity: 0.3;
         }
+
+        .spoiler {
+            filter: blur(0.3rem);
+        }
+        .spoiler:hover{
+            filter:none;
+        }
     </style>
 </head>
 
@@ -73,7 +80,7 @@
                     <td>{{episode.order}}</td>
                     <td>{{episode.series}}</td>
                     <td>{{episode.episode}}</td>
-                    <td>{{episode.title}}</td>
+                    <td class="spoiler">{{episode.title}}</td>
                     <td>{{episode.dateString}}</td>
                 </tr>
             </tbody>
