@@ -56,13 +56,52 @@
         .spoiler:hover{
             filter:none;
         }
+
+        .button {
+            margin: auto;
+        }
+
+        .loader {
+            margin: auto;
+            margin-top: 50px;
+            border: 16px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 16px solid #3498db;
+            width: 120px;
+            height: 120px;
+            -webkit-animation: spin 2s linear infinite; /* Safari */
+            animation: spin 2s linear infinite;
+        }
+
+        /* Safari */
+        @-webkit-keyframes spin {
+            0% {
+                -webkit-transform: rotate(0deg);
+            }
+
+            100% {
+                -webkit-transform: rotate(360deg);
+            }
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
     </style>
 </head>
 
 <body ng-app="arrowverseApp">
     <div ng-controller="arrowverseController">
-        <input type="button" ng-click="fetchEpisodesList()" value="Fetch Episodes" />
-        <table class="table table-bordered">
+        <input type="button" class="button" ng-click="fetchEpisodesList()" value="Fetch Episodes" />
+        <div class="loader" ng-show="fetchingEpisodesList"></div>
+        <table class="table table-bordered" ng-hide="fetchingEpisodesList">
             <thead>
                 <tr>
                     <th>&nbsp;</th>
@@ -85,9 +124,6 @@
                 </tr>
             </tbody>
         </table>
-        <div>
-            <p>{{episode}}</p>
-        </div>
     </div>
 </body>
 </html>

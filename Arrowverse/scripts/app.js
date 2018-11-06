@@ -4,13 +4,14 @@ app.controller('arrowverseController', ['$scope', '$http', '$filter', function (
     // declare variables 
     $scope.episodes = [];
     $scope.watched = [];
+    $scope.fetchingEpisodesList = false;
     // Set date variables
     var now = new Date()
     $scope.today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     $scope.historyDate = new Date(now.getFullYear(), now.getMonth(), now.getDate()).addDays(7);
     // Accepted shows
     $scope.acceptedShow = ["arrow", "the_flash", "dcs_legends_of_tomorrow"];
-    
+
     // episodes states
     $scope.isWatched = function (episode) {
         if ($scope.watched && episode) {
@@ -57,12 +58,13 @@ app.controller('arrowverseController', ['$scope', '$http', '$filter', function (
                 $scope.watched.push(_identifier);
             }
             $scope.SaveAll();
-        } 
+        }
     }
 
     // Get episodes
     $scope.fetchEpisodesList = function () {
         console.log('fetching episodes...');
+        $scope.fetchingEpisodesList = true;
         $.getJSON('http://anyorigin.com/go?url=http%3A//flash-arrow-order.herokuapp.com/hide/supergirl+vixen+constantine/&callback=?', function (data) {
             var $table = $(data.contents).find("#episode-list tbody")
             var $tableRows = $table.children();
@@ -92,7 +94,8 @@ app.controller('arrowverseController', ['$scope', '$http', '$filter', function (
             console.log('fetched episodes completed!');
 
             setTimeout(function () {
-                $scope.Init();
+                $scope.loadEpisodes();
+                $scope.fetchingEpisodesList = false;
                 $scope.$apply
             }, 200);
         });
@@ -119,7 +122,7 @@ app.controller('arrowverseController', ['$scope', '$http', '$filter', function (
     }
 
     // Init the application
-    $scope.Init = function () {
+    $scope.loadEpisodes = function () {
         var episodesSource = "arrowverse.json?v=" + Date.now().valueOf();
         $http.get(episodesSource).then(function (result) {
             if (result && result.data) {
@@ -134,6 +137,10 @@ app.controller('arrowverseController', ['$scope', '$http', '$filter', function (
         }, function (err) {
             console.error(err);
         });
+    }
+
+    $scope.Init = function () {
+        $scope.loadEpisodes();
     }();
 }]);
 
