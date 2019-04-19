@@ -65,7 +65,7 @@ app.controller('arrowverseController', ['$scope', '$http', '$filter', function (
     $scope.fetchEpisodesList = function () {
         console.log('fetching episodes...');
         $scope.fetchingEpisodesList = true;
-        $.getJSON('http://anyorigin.com/go?url=http%3A//flash-arrow-order.herokuapp.com/hide/supergirl+vixen+constantine/&callback=?', function (data) {
+        $.getJSON('https://api.allorigins.win/get?url='+ encodeURIComponent('https://flash-arrow-order.herokuapp.com/?newest_first=False&hide_show=constantine&hide_show=freedom-fighters&hide_show=supergirl&hide_show=vixen&hide_show=black-lightning&from_date=&to_date='), function (data) {
             var $table = $(data.contents).find("#episode-list tbody")
             var $tableRows = $table.children();
             var _data = [];
