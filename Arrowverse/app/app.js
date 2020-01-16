@@ -1,8 +1,7 @@
-var app = angular.module('arrowverseApp', []);
+var app = angular.module('seriesProgressApp', []);
 
-app.controller('arrowverseController', ['$scope', '$http', '$filter', function ($scope, $http, $filter) {
-    $scope.series = typeof(series) != 'undefined' ? series : '';    
-
+app.controller('seriesProgressController', ['$scope', '$http', '$filter', function ($scope, $http, $filter) {
+    $scope.data = typeof(data) != 'undefined' ? data : {}
     // declare variables 
     $scope.episodes = [];
     $scope.watched = [];
@@ -11,9 +10,8 @@ app.controller('arrowverseController', ['$scope', '$http', '$filter', function (
     var now = new Date()
     $scope.today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     $scope.historyDate = new Date(now.getFullYear(), now.getMonth(), now.getDate()).addDays(7);
-    $scope.acceptedShow = [];
 
-    // episodes states
+    // returns wethers an episodes is marked as watched
     $scope.isWatched = function (episode) {
         if ($scope.watched && episode) {
             var _identifier = $filter('identifier')(episode);
@@ -22,6 +20,7 @@ app.controller('arrowverseController', ['$scope', '$http', '$filter', function (
         return false;
     }
 
+    // returns wethers an episode is in the past
     $scope.isHistory = function (episode) {
         if ($scope.isWatched(episode)) {
             return new Date(episode.date) <= $scope.historyDate;
@@ -29,6 +28,7 @@ app.controller('arrowverseController', ['$scope', '$http', '$filter', function (
         return false;
     }
 
+    // returns wethers an episode is in the future
     $scope.isFuture = function (episode) {
         if (episode) {
             return new Date(episode.date) >= $scope.today;
@@ -36,17 +36,7 @@ app.controller('arrowverseController', ['$scope', '$http', '$filter', function (
         return false;
     }
 
-    // Events
-    $scope.setAllWatched = function () {
-        angular.forEach($scope.episodes, function (episode) {
-            var _identifier = $filter('identifier')(episode);
-
-            $scope.watched.push(_identifier);
-
-            $scope.saveWatched(angular.toJson($scope.watched));
-        });
-    }
-
+    // adds an episode to the watched list
     $scope.setWatched = function (episode) {
         if (episode) {
             var _identifier = $filter('identifier')(episode);
@@ -58,14 +48,13 @@ app.controller('arrowverseController', ['$scope', '$http', '$filter', function (
             else {
                 $scope.watched.push(_identifier);
             }
-            $scope.SaveAll();
+            $scope.SaveData();
         }
     }
 
-    // Get episodes
-    $scope.fetchEpisodesList = function () {
+    // Gets new Arrowverse episodes
+    $scope.fetchArrowverseEpisodesList = function () {
         // Accepted shows
-        $scope.acceptedShow = ["arrow", "the_flash", "dcs_legends_of_tomorrow"];
         console.log('fetching episodes...');
         $scope.fetchingEpisodesList = true;
         $.getJSON('https://api.allorigins.win/get?url='+ encodeURIComponent('https://flash-arrow-order.herokuapp.com/?newest_first=False&hide_show=constantine&hide_show=freedom-fighters&hide_show=supergirl&hide_show=vixen&hide_show=black-lightning&from_date=&to_date='), function (data) {
@@ -79,7 +68,7 @@ app.controller('arrowverseController', ['$scope', '$http', '$filter', function (
 
                     var _series = $currentTableRow.children[1].innerText;
 
-                    if ($scope.acceptedShow.indexOf($filter('flatten')(_series)) > -1) {
+                    if ($scope.data.includedShows.indexOf($filter('flatten')(_series)) > -1) {
                         _data.push({
                             order: parseInt($currentTableRow.children[0].innerText),
                             series: _series,
@@ -93,7 +82,7 @@ app.controller('arrowverseController', ['$scope', '$http', '$filter', function (
             }
 
             $scope.episodes = _data;
-            $scope.SaveAll();
+            $scope.SaveData();
             console.log('fetched episodes completed!');
 
             setTimeout(function () {
@@ -104,17 +93,18 @@ app.controller('arrowverseController', ['$scope', '$http', '$filter', function (
         });
     }
 
-    // Save data
-    $scope.SaveAll = function () {
+    // Saves that data
+    $scope.SaveData = function () {
         var data = {
             watched: $scope.watched,
             episodes: $scope.episodes
         };
 
         var fd = new FormData();
+        fd.append('path', "../series/" + $scope.data.currentSeries + ".json")
         fd.append('json', angular.toJson(data));
 
-        $http.post("SaveArrowverse.php", fd, {
+        $http.post("../app/save.php", fd, {
             transformRequest: angular.identity,
             headers: { 'Content-Type': undefined, 'Process-Data': false }
         }).then(function () {
@@ -124,17 +114,9 @@ app.controller('arrowverseController', ['$scope', '$http', '$filter', function (
         });
     }
 
-    // Init the application
-    $scope.loadEpisodes = function () {
-        var episodesSource = "";
-        if($scope.series === "arrowverse"){
-            var episodesSource = "arrowverse.json"
-        }
-        else if($scope.series === "clonewars"){
-            var episodesSource = "clonewars.json"
-        }
-
-        episodesSource += "?v=" + Date.now().valueOf();
+    // loads the data 
+    $scope.loadData = function () {
+        var episodesSource = $scope.data.currentSeries + ".json?v=" + Date.now().valueOf();
 
         $http.get(episodesSource).then(function (result) {
             if (result && result.data) {
@@ -142,8 +124,10 @@ app.controller('arrowverseController', ['$scope', '$http', '$filter', function (
                 $scope.episodes = data.episodes;
                 $scope.watched = data.watched;
                 setTimeout(function () {
-                    var _elemH = $('table tr.watched').last().offset().top;
-                    window.scrollTo(0, _elemH);
+                    if($('table tr.watched').last().length){
+                        var _elemH = $('table tr.watched').last().offset().top;
+                        window.scrollTo(0, _elemH);
+                    }
                 }, 100);
             }
         }, function (err) {
@@ -152,7 +136,7 @@ app.controller('arrowverseController', ['$scope', '$http', '$filter', function (
     }
 
     $scope.Init = function () {
-        $scope.loadEpisodes();
+        $scope.loadData();
     }();
 }]);
 
