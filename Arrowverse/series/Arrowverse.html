@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Arrowverse</title>
+    <meta name="viewport" content="width=device-width" />
+    <script src="../scripts//jquery-3.3.1.min.js"></script>
+    <script src="../scripts/angular.min.js"></script>
+    <script>
+        var series = "clonewars";
+    </script>
+    <script src="../scripts/app.js"></script>
+    <link href="../css/bootstrap.min.css" type="text/css" rel="stylesheet" />
+    <link rel="icon" href="favicon.ico">
+
+    <!-- Chrome, Firefox OS and Opera -->
+    <meta name="theme-color" content="#006200">
+    <!-- Windows Phone -->
+    <meta name="msapplication-navbutton-color" content="#006200">
+    <!-- iOS Safari -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="#006200">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <style>
+        .watched {
+            opacity: 0.2;
+            text-decoration: line-through;
+        }
+
+        .history {
+            display: none;
+        }
+
+        .series {
+            background: #007196;
+            color: white;
+        }
+
+        .arrow {
+            background: #006200;
+        }
+
+        .the_flash {
+            background: #a50400
+        }
+
+        .dcs_legends_of_tomorrow {
+            background: #003E3E;
+        }
+
+        .future {
+            opacity: 0.3;
+        }
+
+        .spoiler {
+            filter: blur(0.3rem);
+        }
+
+        .button {
+            margin: auto;
+        }
+
+        .loader {
+            margin: auto;
+            margin-top: 50px;
+            border: 16px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 16px solid #3498db;
+            width: 120px;
+            height: 120px;
+            -webkit-animation: spin 2s linear infinite; /* Safari */
+            animation: spin 2s linear infinite;
+        }
+
+        /* Safari */
+        @-webkit-keyframes spin {
+            0% {
+                -webkit-transform: rotate(0deg);
+            }
+
+            100% {
+                -webkit-transform: rotate(360deg);
+            }
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+    </style>
+</head>
+
+<body ng-app="arrowverseApp">
+    <div ng-controller="arrowverseController">
+        <input type="button" class="button" ng-click="fetchEpisodesList()" value="Fetch Episodes" />
+        <div class="loader" ng-show="fetchingEpisodesList"></div>
+        <table class="table table-bordered" ng-hide="fetchingEpisodesList">
+            <thead>
+                <tr>
+                    <th>&nbsp;</th>
+                    <th>#</th>
+                    <th>Series</th>
+                    <th>Episode</th>
+                    <th>Title</th>
+                    <th>Date</th>
+                </tr>
+            <tbody>
+                <tr ng-repeat="episode in episodes | orderBy:'order'" ng-class="{'watched' : isWatched(episode), 'history' : isHistory(episode), 'future' : isFuture(episode)}" class="series {{episode.series | flatten}}">
+                    <td>
+                        <input type="checkbox" ng-checked="isWatched(episode)" ng-click="setWatched(episode)" />
+                    </td>
+                    <td>{{episode.order}}</td>
+                    <td>{{episode.series}}</td>
+                    <td>{{episode.episode}}</td>
+                    <td class="spoiler">{{episode.title}}</td>
+                    <td>{{episode.dateString}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

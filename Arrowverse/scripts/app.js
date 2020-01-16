@@ -1,6 +1,8 @@
 var app = angular.module('arrowverseApp', []);
 
 app.controller('arrowverseController', ['$scope', '$http', '$filter', function ($scope, $http, $filter) {
+    $scope.series = typeof(series) != 'undefined' ? series : '';    
+
     // declare variables 
     $scope.episodes = [];
     $scope.watched = [];
@@ -9,8 +11,7 @@ app.controller('arrowverseController', ['$scope', '$http', '$filter', function (
     var now = new Date()
     $scope.today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     $scope.historyDate = new Date(now.getFullYear(), now.getMonth(), now.getDate()).addDays(7);
-    // Accepted shows
-    $scope.acceptedShow = ["arrow", "the_flash", "dcs_legends_of_tomorrow"];
+    $scope.acceptedShow = [];
 
     // episodes states
     $scope.isWatched = function (episode) {
@@ -63,6 +64,8 @@ app.controller('arrowverseController', ['$scope', '$http', '$filter', function (
 
     // Get episodes
     $scope.fetchEpisodesList = function () {
+        // Accepted shows
+        $scope.acceptedShow = ["arrow", "the_flash", "dcs_legends_of_tomorrow"];
         console.log('fetching episodes...');
         $scope.fetchingEpisodesList = true;
         $.getJSON('https://api.allorigins.win/get?url='+ encodeURIComponent('https://flash-arrow-order.herokuapp.com/?newest_first=False&hide_show=constantine&hide_show=freedom-fighters&hide_show=supergirl&hide_show=vixen&hide_show=black-lightning&from_date=&to_date='), function (data) {
@@ -123,7 +126,16 @@ app.controller('arrowverseController', ['$scope', '$http', '$filter', function (
 
     // Init the application
     $scope.loadEpisodes = function () {
-        var episodesSource = "arrowverse.json?v=" + Date.now().valueOf();
+        var episodesSource = "";
+        if($scope.series === "arrowverse"){
+            var episodesSource = "arrowverse.json"
+        }
+        else if($scope.series === "clonewars"){
+            var episodesSource = "clonewars.json"
+        }
+
+        episodesSource += "?v=" + Date.now().valueOf();
+
         $http.get(episodesSource).then(function (result) {
             if (result && result.data) {
                 var data = result.data;
