@@ -37,6 +37,7 @@
                     <th>Episode</th>
                     <th>Disc</th>
                     <th>Title</th>
+                    <th>Arc</th>
                 </tr>
             <tbody>
                 <tr ng-repeat="episode in episodes | orderBy:'order'" ng-class="{'watched' : isWatched(episode), 'history' : isHistory(episode), 'future' : isFuture(episode)}" class="series {{episode.series | flatten}}">
@@ -46,7 +47,8 @@
                     <td>{{episode.order}}</td>
                     <td>{{episode.episode}}</td>
                     <td>{{episode.disc}}</td>  
-                    <td>{{episode.title}}</td>                    
+                    <td>{{episode.title}}</td>  
+                    <td>{{episode.arc}}</td>                   
                 </tr>
             </tbody>
         </table>
