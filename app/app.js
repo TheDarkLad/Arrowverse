@@ -123,6 +123,14 @@ app.controller('seriesProgressController', ['$scope', '$http', '$filter', functi
                 var data = result.data;
                 $scope.episodes = data.episodes;
                 $scope.watched = data.watched;
+
+                for (let index = 0; index < $scope.episodes.length; index++) {
+                    const element = $scope.episodes[index];
+                    element.disc = parseInt(element.disc);
+                    element.order = parseInt(element.order);   
+                }
+                $scope.SaveData();
+
                 setTimeout(function () {
                     if($('table tr.watched').last().length){
                         var _elemH = $('table tr.watched').last().offset().top;
